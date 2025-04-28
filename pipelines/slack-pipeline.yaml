@@ -21,15 +21,15 @@ spec:
       value: "webhook"
   tasks:
     - name: send-to-slack
-      taskRef:
-        resolver: "git"
-        params:
-          - name: url
-            value: https://github.com/Paul123111/test-tenant-pipelines.git
-          - name: revision
-            value: development
-          - name: pathInRepo
-            value: tasks/slack-task.yaml
+      # taskRef:
+      #   resolver: "git"
+      #   params:
+      #     - name: url
+      #       value: https://github.com/Paul123111/test-tenant-pipelines.git
+      #     - name: revision
+      #       value: development
+      #     - name: pathInRepo
+      #       value: tasks/slack-task.yaml
       params:
         - name: message
           value: $(params.message)
@@ -38,4 +38,13 @@ spec:
         - name: secretName
           value: $(params.secretName)
         - name: secretKeyName
-          value: $(params.secretKeyName)            
+          value: $(params.secretKeyName)
+      taskSpec:
+       steps:
+         - name: echo resources
+           image: ubuntu:latest
+           script: |
+             #!/usr/bin/env sh
+             echo "$(params.message) - $(params.tasksStatus)"
+             echo "$(params.secretName)"
+             echo "$(params.secretKeyName)"

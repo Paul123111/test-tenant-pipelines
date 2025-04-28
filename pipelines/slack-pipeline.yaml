@@ -4,8 +4,14 @@ metadata:
   name: slack-pipeline
 spec:
   params:
-    - name: 
-      value: 
+    - name: message
+      value: "hello world!"
+    - name: tasksStatus
+      value: "Succeeded"
+    - name: secretName
+      value: "slack-token"
+    - name: secretKeyName
+      value: webhook
   tasks:
     - name: send-to-slack
       taskRef:

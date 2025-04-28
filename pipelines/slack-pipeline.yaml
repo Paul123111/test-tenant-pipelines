@@ -18,7 +18,7 @@ spec:
     - name: secretName
       value: "slack-token"
     - name: secretKeyName
-      value: webhook
+      value: "webhook"
   tasks:
     - name: send-to-slack
       taskRef:

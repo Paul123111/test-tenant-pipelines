@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: slack-pipeline
+spec:
+  params:
+    - name: 
+      value: 
+  tasks:
+    - name: send-to-slack
+      taskRef:
+        resolver: "git"
+        params:
+          - name: url
+            value: https://github.com/Paul123111/test-tenant-pipelines.git
+          - name: revision
+            value: development
+          - name: pathInRepo
+            value: tasks/slack-task.yaml

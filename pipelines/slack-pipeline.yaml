@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/version: "0.1"
   annotations:
     tekton.dev/pipelines.minVersion: "0.12.1"
-    tekton.dev/tags: release  
+    tekton.dev/tags: release
 spec:
   description: "Makes an app send a notification to Slack"
   params:
@@ -21,15 +21,6 @@ spec:
       value: webhook
   tasks:
     - name: send-to-slack
-      params:
-        - name: message
-          value: $(params.message)
-        - name: tasksStatus
-          value: $(params.tasksStatus)
-        - name: secretName
-          value: $(params.secretName)
-        - name: secretKeyName
-          value: $(params.secretKeyName)
       taskRef:
         resolver: "git"
         params:
@@ -39,3 +30,12 @@ spec:
             value: development
           - name: pathInRepo
             value: tasks/slack-task.yaml
+      params:
+        - name: message
+          value: $(params.message)
+        - name: tasksStatus
+          value: $(params.tasksStatus)
+        - name: secretName
+          value: $(params.secretName)
+        - name: secretKeyName
+          value: $(params.secretKeyName)            

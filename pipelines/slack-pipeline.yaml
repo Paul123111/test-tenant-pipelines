@@ -12,13 +12,13 @@ spec:
   description: "Makes an app send a notification to Slack"
   params:
     - name: message
-      value: $(params.message)
+      type: string
     - name: tasksStatus
-      value: $(params.tasksStatus)
+      type: string
     - name: secretName
-      value: $(params.secretName)
+      type: string
     - name: secretKeyName
-      value: $(params.secretKeyName)
+      type: string
   tasks:
     - name: send-to-slack
       taskRef:
@@ -32,10 +32,10 @@ spec:
             value: tasks/slack-task.yaml
       params:
         - name: message
-          type: string
+          value: $(params.message)
         - name: tasksStatus
-          type: string
+          value: $(params.tasksStatus)
         - name: secretName
-          type: string
+          value: $(params.secretName)
         - name: secretKeyName
-          type: string
+          value: $(params.secretKeyName)

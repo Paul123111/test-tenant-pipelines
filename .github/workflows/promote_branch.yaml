@@ -62,7 +62,7 @@ jobs:
       - name: Run branch promotion script
         run: |
           .github/scripts/promote_branch.sh --promotion-type $PROMOTION_TYPE --force-to-staging $FORCE \
-            --override $OVERRIDE --dry-run $DRYc
+            --override $OVERRIDE --dry-run $DRY
         env:
           PROMOTION_TYPE: development-to-staging
           FORCE: true

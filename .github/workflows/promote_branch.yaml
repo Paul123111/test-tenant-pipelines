@@ -33,7 +33,7 @@ permissions:
     #     required: true
     #     default: false
   # schedule:
-  #   - cron: "* * * * *"
+  #   - cron: "* * * * *" changed file here
 jobs:
   promote-staging-to-production:
     name: Promote Branch - Staging-to-Production

@@ -17,7 +17,7 @@
 # Prerequisities:
 #   - An environment variable GITHUB_TOKEN is defined that provides access to the user's account. See
 #     https://github.com/konflux-ci/release-service-utils/blob/main/ci/promote-overlay/README.md#setup for help.
-#   - curl, git and jq installed.
+#   - curl, git and jq installed. change
 
 set -e
 

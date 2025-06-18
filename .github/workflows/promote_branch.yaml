@@ -36,7 +36,7 @@ permissions:
   #   - cron: "* * * * *" changed file here
 jobs:
   promote-staging-to-production:
-    name: Promote Branch - Staging-to-Production
+    name: Promote Branch
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

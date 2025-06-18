@@ -4,8 +4,6 @@ on: workflow_dispatch
 permissions:
   contents: write
   actions: write
-  pull-requests: write
-  packages: write
     # inputs:
     #   promotion-type:
     #     description: The type of promotion to perform

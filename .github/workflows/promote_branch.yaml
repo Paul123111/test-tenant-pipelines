@@ -1,7 +1,11 @@
 ---
 name: Promote branch
 on: workflow_dispatch
-permissions: write-all
+permissions:
+  contents: write
+  actions: write
+  pull-requests: write
+  packages: write
     # inputs:
     #   promotion-type:
     #     description: The type of promotion to perform
@@ -58,7 +62,7 @@ jobs:
       - name: Run branch promotion script
         run: |
           .github/scripts/promote_branch.sh --promotion-type $PROMOTION_TYPE --force-to-staging $FORCE \
-            --override $OVERRIDE --dry-run $DRY
+            --override $OVERRIDE --dry-run $DRYc
         env:
           PROMOTION_TYPE: development-to-staging
           FORCE: true

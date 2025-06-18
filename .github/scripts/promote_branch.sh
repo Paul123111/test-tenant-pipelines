@@ -153,7 +153,7 @@ if [ "${DRY_RUN}" == "true" ] ; then
 fi
 
 git checkout $SOURCE_BRANCH
-git push origin $SOURCE_BRANCH:$TARGET_BRANCH
+git push --force origin $SOURCE_BRANCH:$TARGET_BRANCH
 
 cd -
 rm -rf ${tmpDir}

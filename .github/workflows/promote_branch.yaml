@@ -1,6 +1,8 @@
 ---
 name: Promote branch
 on: workflow_dispatch
+permissions:
+  actions: write
     # inputs:
     #   promotion-type:
     #     description: The type of promotion to perform
@@ -49,7 +51,7 @@ jobs:
           DRY: false
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   promote-development-to-staging:
-    name: Promote Branch - Staging-to-Production
+    name: Promote Branch - Development-to-Staging
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

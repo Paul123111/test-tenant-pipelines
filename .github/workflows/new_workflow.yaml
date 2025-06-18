@@ -1,0 +1,14 @@
+name: test-workflow
+on: workflow_dispatch
+
+jobs:
+  job1:
+    name: Development
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v2
+      with: { ref: development }
+    - name: List files
+      run: ls

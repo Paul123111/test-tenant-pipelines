@@ -22,8 +22,8 @@
 set -e
 
 # GitHub repository details
-ORG="konflux-ci"
-REPO="release-service-catalog"
+ORG="Paul123111"
+REPO="test-tenant-pipelines"
 
 OPTIONS=$(getopt --long "promotion-type:,force-to-staging:,override:,dry-run:,help" -o "p:,h" -- "$@")
 eval set -- "$OPTIONS"

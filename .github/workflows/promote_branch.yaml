@@ -1,8 +1,7 @@
 ---
 name: Promote branch
 on: workflow_dispatch
-permissions:
-  actions: write
+permissions: write-all
     # inputs:
     #   promotion-type:
     #     description: The type of promotion to perform

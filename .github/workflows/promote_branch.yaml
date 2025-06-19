@@ -1,39 +1,40 @@
 ---
 name: Promote branch
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+    inputs:
+          promotion-type:
+            description: The type of promotion to perform
+            type: choice
+            required: true
+            default: development-to-staging
+            options:
+              - development-to-staging
+              - staging-to-production
+          force-to-staging:
+            description: |
+              Force to staging: Allow promotion to staging even if staging and production differ
+            type: boolean
+            required: true
+            default: false
+          override:
+            description: |
+              Override: Allow promotion to production even if the change has not been in staging for one
+              week
+            type: boolean
+            required: true
+            default: false
+          dry-run:
+            description: |
+              Dry run: Print out the changes that would be promoted but do not perform the git push
+            type: boolean
+            required: true
+            default: false
+  schedule:
+    - cron: "*/5 * * * *"
 permissions:
   contents: write
   actions: write
-    # inputs:
-    #   promotion-type:
-    #     description: The type of promotion to perform
-    #     type: choice
-    #     required: true
-    #     default: development-to-staging
-    #     options:
-    #       - development-to-staging
-    #       - staging-to-production
-    #   force-to-staging:
-    #     description: |
-    #       Force to staging: Allow promotion to staging even if staging and production differ
-    #     type: boolean
-    #     required: true
-    #     default: false
-    #   override:
-    #     description: |
-    #       Override: Allow promotion to production even if the change has not been in staging for one
-    #       week
-    #     type: boolean
-    #     required: true
-    #     default: false
-    #   dry-run:
-    #     description: |
-    #       Dry run: Print out the changes that would be promoted but do not perform the git push
-    #     type: boolean
-    #     required: true
-    #     default: false
-  # schedule:
-  #   - cron: "* * * * *" changed file here23
 jobs:
   promote-staging-to-production:
     name: Promote Branch
@@ -47,9 +48,9 @@ jobs:
             --override $OVERRIDE --dry-run $DRY
         env:
           PROMOTION_TYPE: staging-to-production
-          FORCE: true
-          OVERRIDE: true
-          DRY: false
+          FORCE: ${{ inputs.force-to-staging || 'true' }}
+          OVERRIDE: ${{ inputs.override || 'true' }}
+          DRY: ${{ inputs.dry-run || 'false' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Promote Branch - Development-to-Staging
         run: |
@@ -57,7 +58,7 @@ jobs:
             --override $OVERRIDE --dry-run $DRY
         env:
           PROMOTION_TYPE: development-to-staging
-          FORCE: true
-          OVERRIDE: true
-          DRY: false
+          FORCE: ${{ inputs.force-to-staging || 'true' }}
+          OVERRIDE: ${{ inputs.override || 'true' }}
+          DRY: ${{ inputs.dry-run || 'false' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

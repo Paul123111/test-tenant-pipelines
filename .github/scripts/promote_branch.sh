@@ -47,7 +47,7 @@ while true; do
             print_help
             exit
             ;;
-        --)v
+        --)
             shift
             break
             ;;

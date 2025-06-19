@@ -52,7 +52,6 @@ jobs:
           OVERRIDE: ${{ !contains(inputs.override, 'false') }}
           DRY: ${{ inputs.dry-run || false }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   promote-branch-2:
     name: Promote Branch 2
     runs-on: ubuntu-latest

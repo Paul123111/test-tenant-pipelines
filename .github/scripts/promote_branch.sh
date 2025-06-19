@@ -20,8 +20,8 @@
 set -e
 
 # GitHub repository details
-ORG="konflux-ci"
-REPO="community-catalog"
+ORG="Paul123111"
+REPO="test-tenant-pipelines"
 
 OPTIONS=$(getopt --long "promotion-type:,force-to-staging:,override:,dry-run:,help" -o "p:,h" -- "$@")
 eval set -- "$OPTIONS"
@@ -47,18 +47,18 @@ while true; do
             print_help
             exit
             ;;
-        --)
+        --)v
             shift
             break
             ;;
-        *) echo "Error: Unexpected option: $1" % >2
+        *) echo "Error: Unexpected option: $1" >&2
     esac
 done
 
 cleanup() {
-  if [ -d ${tmpDir} ]; then
+  if [ -d "${1}" ]; then
     echo "Deleting tmpDir..."
-    rm -rf ${tmpDir:?}
+    rm -rf "${1:?}"
   fi
 }
 
@@ -78,17 +78,17 @@ print_help() {
 }
 
 check_if_branch_differs() {
-    ACTUAL_DIFFERENT_LINES=$(git diff --numstat origin/$1 | wc -l)
-    if [ $ACTUAL_DIFFERENT_LINES -ne 0 ] ; then
+    ACTUAL_DIFFERENT_LINES=$(git diff --numstat "origin/$1" | wc -l)
+    if [ "$ACTUAL_DIFFERENT_LINES" -ne 0 ] ; then
         echo "Lines differ in branch $1"
-        echo "Actual differing lines: $(git diff --numstat origin/$1)"
+        echo "Actual differing lines: $(git diff --numstat origin/"$1")"
         exit 1
     fi
 }
 
 check_if_any_commits_in_last_week() {
     NEW_COMMITS=$(git log --oneline --since="$(date --date="6 days ago" +%Y-%m-%d)" | wc -l)
-    if [ $NEW_COMMITS -ne 0 ] ; then
+    if [ "$NEW_COMMITS" -ne 0 ] ; then
         echo "There are commits in staging that are less than a week old. Blocking promotion to production"
         echo "Commits less than a week old: $(git log --oneline --since="$(date --date="6 days ago" +%Y-%m-%d)")"
         exit 1
@@ -122,14 +122,14 @@ token="${GITHUB_TOKEN}"
 
 # Clone the repository
 tmpDir=$(mktemp -d)
-trap 'cleanup' EXIT
-communityCatalogDir=${tmpDir}/community-catalog
-mkdir -p ${communityCatalogDir}
+trap 'cleanup ${tmpDir}' EXIT
+communityCatalogDir="${tmpDir}/community-catalog"
+mkdir -p "${communityCatalogDir}"
 
 echo -e "---\nPromoting community-catalog ${SOURCE_BRANCH} to ${TARGET_BRANCH}\n---\n"
 
-git clone "https://oauth2:$GITHUB_TOKEN@github.com/$ORG/$REPO.git" ${communityCatalogDir}
-cd ${communityCatalogDir}
+git clone "https://oauth2:$GITHUB_TOKEN@github.com/$ORG/$REPO.git" "${communityCatalogDir}"
+cd "${communityCatalogDir}"
 
 # A change cannot go into production if the changes in staging are less than a week old
 if [[ "${TARGET_BRANCH}" == "production" && "${OVERRIDE}" != "true" ]] ; then
@@ -144,14 +144,14 @@ if [[ "${TARGET_BRANCH}" == "staging" && "${FORCE_TO_STAGING}" != "true" ]] ; th
 fi
 
 echo "Included PRs:"
-COMMITS=($(git rev-list --first-parent --ancestry-path origin/"$TARGET_BRANCH"'...'origin/"$SOURCE_BRANCH"))
+mapfile -t COMMITS < <(git rev-list --first-parent --ancestry-path origin/"$TARGET_BRANCH"'...'origin/"$SOURCE_BRANCH")
 ## now loop through the above array
 for COMMIT in "${COMMITS[@]}"
 do
-  echo $(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
+  curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
     | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
-    | .pull_request | select(.merged_at!=null) | .html_url')
-  git show --oneline --no-patch $COMMIT
+    | .pull_request | select(.merged_at!=null) | .html_url'
+  git show --oneline --no-patch "$COMMIT"
 done
 
 if [ "${DRY_RUN}" == "true" ] ; then

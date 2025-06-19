@@ -36,7 +36,7 @@ permissions:
   contents: write
   actions: write
 jobs:
-  promote-staging-to-production:
+  promote-branch:
     name: Promote Branch
     runs-on: ubuntu-latest
     steps:

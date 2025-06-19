@@ -57,6 +57,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: promote-branch
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Promote Branch - Development-to-Staging
         run: |
           .github/scripts/promote_branch.sh --promotion-type $PROMOTION_TYPE --force-to-staging $FORCE \

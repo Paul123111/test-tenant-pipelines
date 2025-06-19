@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# This script promotes branches in the release-service-catalog repository.
+# This script promotes branches in the community-catalog repository.
 #
 # The script promotes the development content into the staging branch, or the staging
 # content into the production branch. It starts by performing the following checks, then
-# it performs a git push. There is no pull request.
+# it performs a git force push. There is no pull request.
 #
 # Checks:
 #   - If there is content in the staging branch that is not yet in the production branch, the
@@ -15,15 +15,13 @@
 #     to provide sufficient testing time. This can be overridden with --override true
 #
 # Prerequisities:
-#   - An environment variable GITHUB_TOKEN is defined that provides access to the user's account. See
-#     https://github.com/konflux-ci/release-service-utils/blob/main/ci/promote-overlay/README.md#setup for help.
-#   - curl, git and jq installed. change
+#   - curl, git and jq installed.
 
 set -e
 
 # GitHub repository details
-ORG="Paul123111"
-REPO="test-tenant-pipelines"
+ORG="konflux-ci"
+REPO="community-catalog"
 
 OPTIONS=$(getopt --long "promotion-type:,force-to-staging:,override:,dry-run:,help" -o "p:,h" -- "$@")
 eval set -- "$OPTIONS"
@@ -57,8 +55,15 @@ while true; do
     esac
 done
 
-print_help(){
-    echo "Usage: $0 --branches branch1-to-branch2 [--force-to-staging false] [--override false] [--dry-run false]"
+cleanup() {
+  if [ -d ${tmpDir} ]; then
+    echo "Deleting tmpDir..."
+    rm -rf ${tmpDir:?}
+  fi
+}
+
+print_help() {
+    echo "Usage: $0 --promotion-type branch1-to-branch2 [--force-to-staging false] [--override false] [--dry-run false]"
     echo
     echo "  --promotion-type:   The type of promotion to perform. Either development-to-staging"
     echo "                      or staging-to-production."
@@ -117,13 +122,14 @@ token="${GITHUB_TOKEN}"
 
 # Clone the repository
 tmpDir=$(mktemp -d)
-releaseServiceCatalogDir=${tmpDir}/release-service-catalog
-mkdir -p ${releaseServiceCatalogDir}
+trap 'cleanup' EXIT
+communityCatalogDir=${tmpDir}/community-catalog
+mkdir -p ${communityCatalogDir}
 
-echo -e "---\nPromoting release-service-catalog ${SOURCE_BRANCH} to ${TARGET_BRANCH}\n---\n"
+echo -e "---\nPromoting community-catalog ${SOURCE_BRANCH} to ${TARGET_BRANCH}\n---\n"
 
-git clone "https://oauth2:$GITHUB_TOKEN@github.com/$ORG/$REPO.git" ${releaseServiceCatalogDir}
-cd ${releaseServiceCatalogDir}
+git clone "https://oauth2:$GITHUB_TOKEN@github.com/$ORG/$REPO.git" ${communityCatalogDir}
+cd ${communityCatalogDir}
 
 # A change cannot go into production if the changes in staging are less than a week old
 if [[ "${TARGET_BRANCH}" == "production" && "${OVERRIDE}" != "true" ]] ; then
@@ -154,6 +160,3 @@ fi
 
 git checkout $SOURCE_BRANCH
 git push --force origin $SOURCE_BRANCH:$TARGET_BRANCH
-
-cd -
-rm -rf ${tmpDir}

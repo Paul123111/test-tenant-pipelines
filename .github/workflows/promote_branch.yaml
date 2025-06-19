@@ -48,9 +48,9 @@ jobs:
             --override $OVERRIDE --dry-run $DRY
         env:
           PROMOTION_TYPE: staging-to-production
-          FORCE: ${{ inputs.force-to-staging || 'true' }}
-          OVERRIDE: ${{ inputs.override || 'true' }}
-          DRY: ${{ inputs.dry-run || 'false' }}
+          FORCE: ${{ !contains(inputs.force-to-staging, 'false') }}
+          OVERRIDE: ${{ !contains(inputs.override, 'false') }}
+          DRY: ${{ inputs.dry-run || false }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Promote Branch - Development-to-Staging
         run: |
@@ -58,7 +58,7 @@ jobs:
             --override $OVERRIDE --dry-run $DRY
         env:
           PROMOTION_TYPE: development-to-staging
-          FORCE: ${{ inputs.force-to-staging || 'true' }}
-          OVERRIDE: ${{ inputs.override || 'true' }}
-          DRY: ${{ inputs.dry-run || 'false' }}
+          FORCE: ${{ !contains(inputs.force-to-staging, 'false') }}
+          OVERRIDE: ${{ !contains(inputs.override, 'false') }}
+          DRY: ${{ inputs.dry-run || false }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

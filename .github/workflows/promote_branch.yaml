@@ -3,6 +3,14 @@ name: Promote branch
 on: 
   workflow_dispatch:
     inputs:
+      promotion-type:
+        description: The type of promotion to perform
+        type: choice
+        required: true
+        default: development-to-staging
+        options:
+          - development-to-staging
+          - staging-to-production
       force-to-staging:
         description: |
           Force to staging: Allow promotion to staging even if staging and production differ
@@ -22,8 +30,8 @@ on:
         type: boolean
         required: true
         default: false
-  schedule:
-    - cron: "*/5 * * * *"
+  #schedule:
+    #- cron: "*/5 * * * *"
 permissions:
   contents: write
   actions: write
@@ -31,6 +39,7 @@ jobs:
   promote-branch:
     name: Promote Branch
     runs-on: ubuntu-latest
+    if: inputs.promotion-type != 'development-to-staging'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,6 +56,7 @@ jobs:
   promote-development-to-staging:
     name: Promote Branch 2
     runs-on: ubuntu-latest
+    if: inputs.promotion-type != 'production-to-staging'
     needs: promote-branch
     steps:
       - name: Checkout code

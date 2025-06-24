@@ -4,7 +4,7 @@
 #
 # The script promotes the development content into the staging branch, or the staging
 # content into the production branch. It starts by performing the following checks, then
-# it performs a git force push. There is no pull request.
+# it performs a git push. There is no pull request.
 #
 # Checks:
 #   - If there is content in the staging branch that is not yet in the production branch, the
@@ -160,4 +160,4 @@ if [ "${DRY_RUN}" == "true" ] ; then
 fi
 
 git checkout $SOURCE_BRANCH
-git push --force origin $SOURCE_BRANCH:$TARGET_BRANCH
+git push origin $SOURCE_BRANCH:$TARGET_BRANCH

@@ -58,7 +58,6 @@ done
 cleanup() {
   if [ -d "${1}" ]; then
     echo "Deleting tmpDir..."
-    cd -
     rm -rf "${1:?}"
   fi
 }

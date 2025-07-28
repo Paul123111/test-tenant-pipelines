@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script promotes branches in the release-service-catalog repository.
+# This script promotes branches in the community-catalog repository.
 #
 # The script promotes the development content into the staging branch, or the staging
 # content into the production branch. It starts by performing the following checks, then
@@ -15,8 +15,6 @@
 #     to provide sufficient testing time. This can be overridden with --override true
 #
 # Prerequisities:
-#   - An environment variable GITHUB_TOKEN is defined that provides access to the user's account. See
-#     https://github.com/konflux-ci/release-service-utils/blob/main/ci/promote-overlay/README.md#setup for help.
 #   - curl, git and jq installed.
 
 set -e
@@ -53,12 +51,19 @@ while true; do
             shift
             break
             ;;
-        *) echo "Error: Unexpected option: $1" % >2
+        *) echo "Error: Unexpected option: $1" >&2
     esac
 done
 
-print_help(){
-    echo "Usage: $0 --branches branch1-to-branch2 [--force-to-staging false] [--override false] [--dry-run false]"
+cleanup() {
+  if [ -d "${1}" ]; then
+    echo "Deleting tmpDir..."
+    rm -rf "${1:?}"
+  fi
+}
+
+print_help() {
+    echo "Usage: $0 --promotion-type branch1-to-branch2 [--force-to-staging false] [--override false] [--dry-run false]"
     echo
     echo "  --promotion-type:   The type of promotion to perform. Either development-to-staging"
     echo "                      or staging-to-production."
@@ -73,24 +78,22 @@ print_help(){
 }
 
 check_if_branch_differs() {
-    ACTUAL_DIFFERENT_LINES=$(git diff --numstat origin/$1 | wc -l)
-    if [ $ACTUAL_DIFFERENT_LINES -ne 0 ] ; then
+    ACTUAL_DIFFERENT_LINES=$(git diff --numstat "origin/$1" | wc -l)
+    if [ "$ACTUAL_DIFFERENT_LINES" -ne 0 ] ; then
         echo "Lines differ in branch $1"
-        echo "Actual differing lines: $(git diff --numstat origin/$1)"
+        echo "Actual differing lines: $(git diff --numstat origin/"$1")"
         exit 1
     fi
 }
 
 check_if_any_commits_in_last_week() {
     NEW_COMMITS=$(git log --oneline --since="$(date --date="6 days ago" +%Y-%m-%d)" | wc -l)
-    if [ $NEW_COMMITS -ne 0 ] ; then
+    if [ "$NEW_COMMITS" -ne 0 ] ; then
         echo "There are commits in staging that are less than a week old. Blocking promotion to production"
         echo "Commits less than a week old: $(git log --oneline --since="$(date --date="6 days ago" +%Y-%m-%d)")"
         exit 1
     fi
 }
-
-# something like gh api   -H "Accept: application/vnd.github+json"   -H "X-GitHub-Api-Version: 2022-11-28"   /repos/konflux-ci/release-service-catalog/issues/1000/labels | jq .[].name
 
 if [ -z "${PROMOTION_TYPE}" ]; then
     echo -e "Error: missing '--promotion-type' argument\n"
@@ -119,13 +122,14 @@ token="${GITHUB_TOKEN}"
 
 # Clone the repository
 tmpDir=$(mktemp -d)
-releaseServiceCatalogDir=${tmpDir}/release-service-catalog
-mkdir -p ${releaseServiceCatalogDir}
+trap 'cleanup ${tmpDir}' EXIT
+communityCatalogDir="${tmpDir}/community-catalog"
+mkdir -p "${communityCatalogDir}"
 
-echo -e "---\nPromoting release-service-catalog ${SOURCE_BRANCH} to ${TARGET_BRANCH}\n---\n"
+echo -e "---\nPromoting community-catalog ${SOURCE_BRANCH} to ${TARGET_BRANCH}\n---\n"
 
-git clone "https://oauth2:$GITHUB_TOKEN@github.com/$ORG/$REPO.git" ${releaseServiceCatalogDir}
-cd ${releaseServiceCatalogDir}
+git clone "https://oauth2:$GITHUB_TOKEN@github.com/$ORG/$REPO.git" "${communityCatalogDir}"
+cd "${communityCatalogDir}"
 
 # A change cannot go into production if the changes in staging are less than a week old
 if [[ "${TARGET_BRANCH}" == "production" && "${OVERRIDE}" != "true" ]] ; then
@@ -140,16 +144,16 @@ if [[ "${TARGET_BRANCH}" == "staging" && "${FORCE_TO_STAGING}" != "true" ]] ; th
 fi
 
 echo "Included PRs:"
-COMMITS=($(git rev-list --first-parent --ancestry-path origin/"$TARGET_BRANCH"'...'origin/"$SOURCE_BRANCH"))
+mapfile -t COMMITS < <(git rev-list --first-parent --ancestry-path origin/"$TARGET_BRANCH"'...'origin/"$SOURCE_BRANCH")
 ## now loop through the above array
 for COMMIT in "${COMMITS[@]}"
 do
-  echo $(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
+  curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
     | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
     | .pull_request | select(.merged_at!=null) | .html_url'
-  echo $(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
+  curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
     | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
-    | .pull_request | select(.merged_at!=null) | .labels.[].name')
+    | .pull_request | select(.merged_at!=null) | .labels.[].name'
   git show --oneline --no-patch "$COMMIT"
 done
 
@@ -159,6 +163,3 @@ fi
 
 git checkout $SOURCE_BRANCH
 git push origin $SOURCE_BRANCH:$TARGET_BRANCH
-
-cd -
-rm -rf ${tmpDir}

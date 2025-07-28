@@ -154,7 +154,8 @@ do
   LABELS=($(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
     | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
     | .labels[].name'))
-  echo "PR Labels: ${LABELS[@]}"
+  printf -v LABELS '%s, ' "${LABELS[@]}"
+  echo "PR Labels: ${LABELS%, }"
   git show --oneline --no-patch "$COMMIT"
 done
 

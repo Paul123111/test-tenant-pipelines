@@ -151,7 +151,7 @@ do
   curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
     | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
     | .pull_request | select(.merged_at!=null) | .html_url'
-  echo $(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT")
+  curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]'
   git show --oneline --no-patch "$COMMIT"
 done
 

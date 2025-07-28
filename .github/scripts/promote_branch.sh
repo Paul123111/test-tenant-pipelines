@@ -151,11 +151,11 @@ do
   curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
     | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
     | .pull_request | select(.merged_at!=null) | .html_url'
-  LABELS=$(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
+  LABELS=($(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
     | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
-    | .labels[].name')
-  LABELS="$(echo "$LABELS" | tr '\n' ", ")"
-  echo "PR Labels: ${LABELS%, }"
+    | .labels[].name'))
+  LABELS="$(echo "${LABELS[@]/%/,}")"
+  echo "PR Labels: ${LABELS%,}"
   git show --oneline --no-patch "$COMMIT"
 done
 

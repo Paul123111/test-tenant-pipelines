@@ -3,7 +3,7 @@ name: Promote branch
 on: 
   workflow_dispatch:
     inputs:
-      promotion-type0:
+      promotion-type:
         description: The type of promotion to perform
         type: choice
         required: true

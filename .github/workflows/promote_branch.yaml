@@ -47,26 +47,26 @@ jobs:
           .github/scripts/promote_branch.sh --promotion-type $PROMOTION_TYPE --force-to-staging $FORCE \
             --override $OVERRIDE --dry-run $DRY
         env:
-          PROMOTION_TYPE: ${{ inputs.promotion-type || 'staging-to-production' }}
+          PROMOTION_TYPE: ${{ inputs.promotion-type }}
           FORCE: ${{ !contains(inputs.force-to-staging, 'false') }}
           OVERRIDE: ${{ !contains(inputs.override, 'false') }}
           DRY: ${{ inputs.dry-run || false }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  promote-development-to-staging:
-    name: Promote Branch 2
-    runs-on: ubuntu-latest
-    if: inputs.promotion-type == ''
-    needs: promote-branch
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Promote Branch - Development-to-Staging
-        run: |
-          .github/scripts/promote_branch.sh --promotion-type $PROMOTION_TYPE --force-to-staging $FORCE \
-            --override $OVERRIDE --dry-run $DRY
-        env:
-          PROMOTION_TYPE: development-to-staging
-          FORCE: ${{ !contains(inputs.force-to-staging, 'false') }}
-          OVERRIDE: ${{ !contains(inputs.override, 'false') }}
-          DRY: ${{ inputs.dry-run || false }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # promote-development-to-staging:
+  #   name: Promote Branch 2
+  #   runs-on: ubuntu-latest
+  #   if: inputs.promotion-type == ''
+  #   needs: promote-branch
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Promote Branch - Development-to-Staging
+  #       run: |
+  #         .github/scripts/promote_branch.sh --promotion-type $PROMOTION_TYPE --force-to-staging $FORCE \
+  #           --override $OVERRIDE --dry-run $DRY
+  #       env:
+  #         PROMOTION_TYPE: development-to-staging
+  #         FORCE: ${{ !contains(inputs.force-to-staging, 'false') }}
+  #         OVERRIDE: ${{ !contains(inputs.override, 'false') }}
+  #         DRY: ${{ inputs.dry-run || false }}
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

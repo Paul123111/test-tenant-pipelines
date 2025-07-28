@@ -146,11 +146,11 @@ for COMMIT in "${COMMITS[@]}"
 do
   echo $(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
     | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
-    | .pull_request | select(.merged_at!=null) | .html_url')
+    | .pull_request | select(.merged_at!=null) | .html_url'
   echo $(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
     | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
     | .pull_request | select(.merged_at!=null) | .labels.[].name')
-  git show --oneline --no-patch $COMMIT
+  git show --oneline --no-patch "$COMMIT"
 done
 
 if [ "${DRY_RUN}" == "true" ] ; then

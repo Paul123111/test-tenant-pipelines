@@ -17,7 +17,7 @@
 # Prerequisities:
 #   - curl, git and jq installed.
 
-set -e
+#set -e
 
 # GitHub repository details
 ORG="Paul123111"

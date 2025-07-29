@@ -148,20 +148,10 @@ mapfile -t COMMITS < <(git rev-list --first-parent --ancestry-path origin/"$TARG
 ## now loop through the above array
 for COMMIT in "${COMMITS[@]}"
 do
-  curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
-    | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
-    | .pull_request | select(.merged_at!=null) | .html_url'
-  # Not taking this as an array to prevent splitting on whitespace in labels
-  LABELS="$(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
-    | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
-    | .labels[].name')"
-  echo -n "PR Labels: "
-  if [[ -n "$LABELS" ]]; then
-    awk '{printf "%s\\n", $0}' <<<"$LABELS" | sed 's/\\n/, /g' | head -c -2
-    echo
-  else
-    echo none
-  fi
+  PR_INFO="$(curl -s   -H 'Authorization: token  '"$token"  'https://api.github.com/search/issues?q=sha:'"$COMMIT" | jq -r '.items[]
+    | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")')"
+  echo "$(jq -r '.pull_request | select(.merged_at!=null) | .html_url' <<< "$PR_INFO")" \
+    "$(jq -r '.labels[].name | select(. | contains("breaking-change"))' <<< "$PR_INFO")"
   git show --oneline --no-patch "$COMMIT"
 done
 

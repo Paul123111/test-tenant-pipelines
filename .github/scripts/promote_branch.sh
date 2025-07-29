@@ -156,7 +156,7 @@ do
     | select(.repository_url=="https://api.github.com/repos/'"$ORG"'/'"$REPO"'")
     | .labels[].name')"
   echo -n "PR Labels: "
-  if [[ -v LABELS ]]; then
+  if [[ -n "$LABELS" ]]; then
     awk '{printf "%s\\n", $0}' <<<"$LABELS" | sed 's/\\n/, /g' | head -c -2
     echo
   else
